@@ -1,13 +1,23 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+''' 去哪儿网成都酒店信息爬虫 '''
+
 import time
 
 from lxml import etree
-
+from pymongo import MongoClient
 from selenium import webdriver
+
+mongo_conn = MongoClient('127.0.0.1', 27017, connect=False)
+db = mongo_conn.qunar
+curse = db.hotel
 
 url = 'http://hotel.qunar.com/city/chengdu/#fromDate=2018-09-15&cityurl=chengdu&from=qunarHotel&toDate=2018-09-16'
 
 
 def get_page_source(url):
+    ''' 使用selenium获取网页源码 '''
     browser = webdriver.Chrome()
     browser.get(url)
     browser.execute_script("window.scrollTo(0,document.body.scrollHeight)")
@@ -18,14 +28,39 @@ def get_page_source(url):
 
 
 def parse_info(page):
+    ''' 解析酒店信息 '''
     html = etree.HTML(page)
-
     divs = html.xpath('//*[@id="jxContentPanel"]//div[@class="clrfix"]')
-
     for div in divs:
+        img = div.xpath('.//div[@class="item_hotel_photo js-photo"]/a/img/@src')
         name = div.xpath('.//span[@class="hotel_item"]/a[1]/text()')
-        print(name)
+        level = div.xpath('.//span[@class="hotel_item"]/em/text()')
+        addr = div.xpath('.//p[@class="address"]/em/text()')
+        rate = div.xpath('.//div[@class="level levelmargin"]//strong/text()')
+        dianpin_num = div.xpath('.//div[@class="level levelmargin"]//a[2]/text()')
+        price = div.xpath('.//div[@class="hotel_price"]//a[1]/b/text()')
+        print(img, name, level, addr, rate, dianpin_num, price)
+        item = {
+            'img': img,
+            'name': name,
+            'level': level,
+            'addr': addr,
+            'rate': rate,
+            'dianpin_num': dianpin_num,
+            'price': price
+        }
+        curse.insert(item)
+        return item
 
 
-page = get_page_source(url)
-infos = parse_info(page)
+# todo 翻页
+# todo 替换成无头chrome
+
+def main():
+    page = get_page_source(url)
+    infos = parse_info(page)
+    print(infos)
+
+
+if __name__ == '__main__':
+    main()
