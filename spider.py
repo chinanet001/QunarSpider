@@ -43,7 +43,7 @@ def parse_info(page):
         level = div.xpath('.//span[@class="hotel_item"]/em/text()')
         addr = div.xpath('.//p[@class="address"]/em/text()')
         rate = div.xpath('.//div[@class="level levelmargin"]//strong/text()')
-        dianpin_num = div.xpath('.//div[@class="level levelmargin"]//a[2]/text()')
+        comment_num = div.xpath('.//div[@class="level levelmargin"]//a[2]/text()')
         price = div.xpath('.//div[@class="hotel_price"]//a[1]/b/text()')
         item = {
             'img'        : img,
@@ -51,7 +51,7 @@ def parse_info(page):
             'level'      : level,
             'addr'       : addr,
             'rate'       : rate,
-            'dianpin_num': dianpin_num,
+            'comment_num': comment_num,
             'price'      : price
         }
         curse.insert(item)
