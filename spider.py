@@ -16,15 +16,20 @@ curse = db.hotel
 url = 'http://hotel.qunar.com/city/chengdu/#fromDate=2018-09-15&cityurl=chengdu&from=qunarHotel&toDate=2018-09-16'
 
 
-def get_page_source(url):
-    ''' 使用selenium获取网页源码 '''
+def schedule(page):
     browser = webdriver.Chrome()
     browser.get(url)
-    browser.execute_script("window.scrollTo(0,document.body.scrollHeight)")
-    time.sleep(3)
-    browser.execute_script("window.scrollTo(0,document.body.scrollHeight)")
-    page_text = browser.page_source
-    return page_text
+    while page:
+        browser.execute_script("window.scrollTo(0,document.body.scrollHeight)")
+        time.sleep(3)
+        browser.execute_script("window.scrollTo(0,document.body.scrollHeight)")
+        page_source = browser.page_source
+        parse_info(page_source)
+        time.sleep(5)
+        next_button = browser.find_element_by_xpath('//li[@class="item next "][1]')
+        next_button.click()
+        page -= 1
+    browser.close()
 
 
 def parse_info(page):
@@ -39,27 +44,23 @@ def parse_info(page):
         rate = div.xpath('.//div[@class="level levelmargin"]//strong/text()')
         dianpin_num = div.xpath('.//div[@class="level levelmargin"]//a[2]/text()')
         price = div.xpath('.//div[@class="hotel_price"]//a[1]/b/text()')
-        print(img, name, level, addr, rate, dianpin_num, price)
         item = {
-            'img': img,
-            'name': name,
-            'level': level,
-            'addr': addr,
-            'rate': rate,
+            'img'        : img,
+            'name'       : name,
+            'level'      : level,
+            'addr'       : addr,
+            'rate'       : rate,
             'dianpin_num': dianpin_num,
-            'price': price
+            'price'      : price
         }
         curse.insert(item)
-        return item
 
 
 # todo 翻页
 # todo 替换成无头chrome
 
 def main():
-    page = get_page_source(url)
-    infos = parse_info(page)
-    print(infos)
+    schedule(3)
 
 
 if __name__ == '__main__':
