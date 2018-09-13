@@ -17,6 +17,7 @@ url = 'http://hotel.qunar.com/city/chengdu/#fromDate=2018-09-15&cityurl=chengdu&
 
 
 def schedule(page):
+    '''  主调度程序 '''
     browser = webdriver.Chrome()
     browser.get(url)
     while page:
@@ -25,7 +26,7 @@ def schedule(page):
         browser.execute_script("window.scrollTo(0,document.body.scrollHeight)")
         page_source = browser.page_source
         parse_info(page_source)
-        time.sleep(5)
+        time.sleep(2)
         next_button = browser.find_element_by_xpath('//li[@class="item next "][1]')
         next_button.click()
         page -= 1
@@ -56,7 +57,6 @@ def parse_info(page):
         curse.insert(item)
 
 
-# todo 翻页
 # todo 替换成无头chrome
 
 def main():
